@@ -9,7 +9,7 @@ st.set_page_config(page_title="Career Planning Chatbot", layout="centered")
 if "messages" not in st.session_state:
     st.session_state.messages = []
 
-csv_path = "updated_qa_career_dataset (1).csv"
+csv_path = "career_guidance_dataset_final.csv"  # Use optimized dataset
 try:
     df = pd.read_csv(csv_path)
 except Exception as e:
@@ -33,13 +33,16 @@ def find_closest_question(user_query, vectorizer, question_vectors, df):
     best_match_index = similarities.argmax()
     best_match_score = similarities[best_match_index]
     if best_match_score > 0.3:
-        return df.iloc[best_match_index]['Answer']
+        answer = df.iloc[best_match_index]['Answer']
+        if len(answer.split()) < 10:
+            return f"{answer}\n\nWould you like me to elaborate on any part? 😊"
+        return answer
     return None
 
 def generate_detailed_response(user_query):
     """Generates an AI-driven response with a detailed explanation."""
     try:
-        response = model.generate_content(user_query)
+        response = model.generate_content(f"Please provide a detailed and structured answer: {user_query}")
         return response.text
     except Exception as e:
         return f"Sorry, I couldn't generate a response. Error: {e}"
